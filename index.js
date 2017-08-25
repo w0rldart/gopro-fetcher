@@ -86,7 +86,7 @@ let fetchItemsList = () => {
  * @param  {Object} items
  * @return {Array}
  */
-let buildDownloadList = (items) => {
+let generateUrls = (items) => {
     let sourceDir = items.media[0].d;
     let files = items.media[0].fs;
 
@@ -102,7 +102,7 @@ let buildDownloadList = (items) => {
 
 fetchItemsList()
     .then((items) => {
-        let urls = buildDownloadList(items);
+        let urls = generateUrls(items);
         console.log(urls);
 
         // async.map(urls, (url, callback) => {
