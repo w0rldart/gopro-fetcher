@@ -1,0 +1,18 @@
+{
+  "name": "gopro-fetcher",
+  "version": "1.0.0",
+  "description": "Fetch stuff from goPro",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gopro"
+  ],
+  "author": "Alex Budurovici",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.5.0",
+    "minimist": "^1.2.0"
+  }
+}
