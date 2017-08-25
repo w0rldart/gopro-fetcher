@@ -61,7 +61,7 @@ if (!args['save-to']) {
 /**
  * Promised function that fecthes all available media on the GoPro
  *
- * @return {Promise} [description]
+ * @return {Promise}
  */
 let fetchItemsList = () => {
     return new Promise((resolve, reject) => {
@@ -69,8 +69,6 @@ let fetchItemsList = () => {
 
         request.get(url, {timeout: requestTimeout}, (error, response, body) => {
             if (error) return reject(error);
-
-            console.log(url, error, response, body);
 
             try {
                 resolve(JSON.parse(body));
@@ -81,9 +79,35 @@ let fetchItemsList = () => {
     });
 };
 
+/**
+ * Takes items list fetched from GoPro and parses it
+ * into an array composed just of actionable urls (i.e.: http://10.5.5.9/videos/DCIM/100GOPRO/GOPR1053.MP4)
+ *
+ * @param  {Object} items
+ * @return {Array}
+ */
+let buildDownloadList = (items) => {
+    let sourceDir = items.media[0].d;
+    let files = items.media[0].fs;
+
+    let urls = [];
+
+    files.forEach((item) => {
+        let url = baseUrl + '/videos/DCIM/' + sourceDir + '/' + file.n;
+        urls.push(url);
+    });
+
+    return urls;
+};
+
 fetchItemsList()
-    .then((data) => {
-        console.log(data);
+    .then((items) => {
+        let urls = buildDownloadList(items);
+        console.log(urls);
+
+        // async.map(urls, (url, callback) => {
+        //     request.get(url);
+        // });
     })
     .catch((error) => {
         console.log(error);
