@@ -15,5 +15,8 @@
     "async": "^2.5.0",
     "minimist": "^1.2.0",
     "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4"
   }
 }
