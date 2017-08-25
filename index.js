@@ -13,6 +13,7 @@ const async = require('async');
 const request = require('request');
 const args = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
+const path = require('path');
 
 // Custom libs
 const generateUrls = require('./lib/GenerateUrls');
@@ -22,6 +23,9 @@ let baseUrl = 'http://10.5.5.9';
 
 /** @type {Number} 5 seconds to timeout connection to GoPro */
 let requestTimeout = 5000;
+
+/** @type {String} [description] */
+let saveTo = '';
 
 /**
  * Method that outputs a help message
@@ -51,7 +55,7 @@ if (!args['save-to']) {
     process.exit(0);
 } else {
     /** @type {String} */
-    let saveTo = args['save-to'];
+    saveTo = args['save-to'];
 
     try {
         fs.statSync(saveTo);
@@ -70,7 +74,7 @@ let fetchItemsList = () => {
     return new Promise((resolve, reject) => {
         let url = baseUrl + '/gp/gpMediaList';
 
-        request.get(url, {timeout: requestTimeout}, (error, response, body) => {
+        request.get(url, { timeout: requestTimeout }, (error, response, body) => {
             if (error) return reject(error);
 
             try {
@@ -82,14 +86,39 @@ let fetchItemsList = () => {
     });
 };
 
+/**
+ * [description]
+ *
+ * @param  {String}   url
+ * @param  {String}   file
+ * @param  {Function} callback
+ *
+ * @return {[type]}            [description]
+ */
+let download = (url, file, callback) => {
+    try {
+        request.get(url)
+            .on('error', function(err) {})
+            .pipe(fs.createWriteStream(file));
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 fetchItemsList()
     .then((items) => {
         let urls = generateUrls(baseUrl, items);
-        console.log(urls);
 
-        // async.map(urls, (url, callback) => {
-        //     request.get(url);
-        // });
+        async.map(urls, (url, callback) => {
+            let fileName = url.split('/');
+            fileName = fileName[fileName.length - 1];
+
+            console.log(' - Starting to download ' + fileName);
+
+            download(url, path.join(saveTo, fileName), function() {
+                console.log(' - Downloaded ' + fileName);
+            });
+        });
     })
     .catch((error) => {
         console.log(error);
