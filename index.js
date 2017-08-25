@@ -14,6 +14,9 @@ const request = require('request');
 const args = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 
+// Custom libs
+const generateUrls = require('./lib/GenerateUrls');
+
 /** @type {String} This never changes and is the IP to your GoPro when you connect to it via WiFi */
 let baseUrl = 'http://10.5.5.9';
 
@@ -79,61 +82,9 @@ let fetchItemsList = () => {
     });
 };
 
-/**
- * Builds an array with names of the files part of a multi shot
- *
- * @param  {String} name   Filename
- * @param  {Number} start  Sequence start
- * @param  {Number} finish Sequence finsh
- *
- * @return {Array}
- */
-let compileMultiShot = (name, start, finish) => {
-    name = name.replace(start + '.JPG', '');
-
-    let shots = [];
-    let i = start;
-    for (i; i <= finish; i++) {
-        shots.push(name + i + '.JPG');
-    }
-
-    return shots;
-};
-
-/**
- * Takes items list fetched from GoPro and parses it
- * into an array composed just of actionable urls (i.e.: http://10.5.5.9/videos/DCIM/100GOPRO/GOPR1053.MP4)
- *
- * @param  {Object} items
- * @return {Array}
- */
-let generateUrls = (items) => {
-    let sourceDir = items.media[0].d;
-    let files = items.media[0].fs;
-
-    let urls = [];
-
-    files.forEach((item) => {
-        let url = baseUrl + '/videos/DCIM/' + sourceDir + '/' + file.n;
-
-        /**
-         * If b and l are set, that means the respective photo forms a multi shot sequence,
-         * and the names (i.e.: G0020990.JPG, G0020991.JPG...) for each one need to be generated
-         * and appended at the end of the list to be then processed
-         */
-        if (item.b && item.l) {
-            items.append(compileMultiShot(item.n, item.b, item.l));
-        }
-
-        urls.push(url);
-    });
-
-    return urls;
-};
-
 fetchItemsList()
     .then((items) => {
-        let urls = generateUrls(items);
+        let urls = generateUrls(baseUrl, items);
         console.log(urls);
 
         // async.map(urls, (url, callback) => {
