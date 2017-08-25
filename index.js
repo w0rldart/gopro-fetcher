@@ -12,7 +12,7 @@
 const async = require('async');
 const request = require('request');
 const args = require('minimist')(process.argv.slice(2));
-
+const fs = require('fs');
 
 /** @type {String} This never changes and is the IP to your GoPro when you connect to it via WiFi */
 let baseUrl = 'http://10.5.5.9';
@@ -49,6 +49,13 @@ if (!args['save-to']) {
 } else {
     /** @type {String} */
     let saveTo = args['save-to'];
+
+    try {
+        fs.statSync(saveTo);
+    } catch (e) {
+        console.error('\nPath %s does not exist\n', saveTo);
+        process.exit(0);
+    }
 };
 
 /**
